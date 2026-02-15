@@ -7,52 +7,35 @@ extern "C" {
 
 #include <iostream>
 #include <windows.h>
+#include <string>
 
-// Прототип функции обработки сообщений
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-    const char CLASS_NAME[] = "VSSystemsVideoPlayerClass";
-
-    WNDCLASS wc = {};
-    wc.lpfnWndProc   = WindowProc;
-    wc.hInstance     = hInstance;
-    wc.lpszClassName = CLASS_NAME;
-    wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-
-    RegisterClass(&wc);
-
-    HWND hwnd = CreateWindowEx(
-        0, CLASS_NAME, "VS Systems Video Player",
-        WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
-        NULL, NULL, hInstance, NULL
-    );
-
-    if (hwnd == NULL) return 0;
-
-    ShowWindow(hwnd, nCmdShow);
-
-    MSG msg = {};
-    while (GetMessage(&msg, NULL, 0, 0)) {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
-
-    return 0;
+extern "C" {
+#include <libavformat/avformat.h>
 }
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-    switch (uMsg) {
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            return 0;
-        case WM_PAINT: {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hwnd, &ps);
-            FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
-            EndPaint(hwnd, &ps);
+void CheckVideo(const char* filename) {
+    AVFormatContext* pFormatCtx = avformat_alloc_context();
+    
+    // Пытаемся открыть файл
+    if (avformat_open_input(&pFormatCtx, filename, NULL, NULL) == 0) {
+        // Читаем данные о потоках (видео, аудио)
+        if (avformat_find_stream_info(pFormatCtx, NULL) >= 0) {
+            std::string info = "Файл открыт успешно!\nДлительность: ";
+            info += std::to_string(pFormatCtx->duration / 1000000);
+            info += " сек.";
+            MessageBox(NULL, info.c_str(), "VS Systems Video Player", MB_OK);
         }
-        return 0;
+        avformat_close_input(&pFormatCtx);
+    } else {
+        MessageBox(NULL, "Не удалось найти или открыть файл test.mp4", "Ошибка", MB_ICONERROR);
     }
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
+int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow) {
+    // Вызываем проверку перед созданием окна
+    CheckVideo("test.mp4");
+
+    // Твой текущий код создания окна (CreateWindowEx...)
+    // ...
+    return 0;
 }
