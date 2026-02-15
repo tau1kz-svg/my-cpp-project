@@ -1,6 +1,7 @@
 #include <iostream>
 
 int main() {
-    std::cout << "Hello from MacBook to Windows!" << std::endl;
+    setlocale(LC_ALL, "Russian");
+    std::cout << "Привет Друг! Ты видишь это?" << std::endl;
     return 0;
 }
