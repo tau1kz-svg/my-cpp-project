@@ -1,7 +1,17 @@
 #include <iostream>
+#include <string>
 
 int main() {
-    setlocale(LC_ALL, "RU");
-    std::cout << "Привет Друг! Ты видишь это?" << std::endl;
+    std::string deviceName = "LED Screen Main";
+    bool isPoweredOn = true;
+
+    std::cout << "System Status Check..." << std::endl;
+
+    if (isPoweredOn) {
+        std::cout << deviceName << " is READY." << std::endl;
+    } else {
+        std::cout << deviceName << " is OFF." << std::endl;
+    }
+
     return 0;
-}Ъ
+}
